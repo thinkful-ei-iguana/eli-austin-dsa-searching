@@ -1,34 +1,36 @@
 function indexOf(array, value) {
-    for (let i = 0; i < array.length; i++) {
-        if (array[i] === value) {
-            return i;
-        }
+  for (let i = 0; i < array.length; i++) {
+    if (array[i] === value) {
+      return i;
     }
+  }
+  return array.length;
+}
+
+function binarySearch(array, value, start, end, path = []) {
+  start = start === undefined ? 0 : start;
+  end = end === undefined ? array.length : end;
+
+  if (start > end) {
     return -1;
+  }
+
+  const index = Math.floor((start + end) / 2);
+  const item = array[index];
+
+  console.log(start, end);
+  if (item === value) {
+    return { index, path };
+  } else if (item < value) {
+    path.push(index + 1);
+    return binarySearch(array, value, index + 1, end, path);
+  } else if (item > value) {
+    path.push(index - 1);
+    return binarySearch(array, value, start, index - 1, path);
+  }
 }
 
-function binarySearch(array, value, start, end) {
-    start = start === undefined ? 0 : start;
-    end = end === undefined ? array.length : end;
-
-    if (start > end) {
-        return -1;
-    }
-
-    const index = Math.floor((start + end) / 2);
-    const item = array[index];
-
-    console.log(start, end);
-    if (item === value) {
-        return index;
-    } else if (item < value) {
-        return binarySearch(array, value, index + 1, end);
-    } else if (item > value) {
-        return binarySearch(array, value, start, index - 1);
-    }
+module.exports = {
+  indexOf,
+  binarySearch
 };
-
-export default {
-    indexOf,
-    binarySearch,
-}
