@@ -12,13 +12,13 @@ function binarySearch(array, value, start, end, path = []) {
   end = end === undefined ? array.length : end;
 
   if (start > end) {
-    return -1;
+    return { index: -1, path };
   }
-
   const index = Math.floor((start + end) / 2);
   const item = array[index];
+  path.push(index);
 
-  console.log(start, end);
+  // console.log(start, end);
   if (item === value) {
     return { index, path };
   } else if (item < value) {

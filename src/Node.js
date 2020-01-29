@@ -1,8 +1,8 @@
 class _Node {
-    constructor(data, next) {
-        this.data = data;
-        this.next = next;
-    }
+  constructor(data, next) {
+    this.data = data;
+    this.next = next;
+  }
 }
 
-export default _Node
+module.exports = _Node;

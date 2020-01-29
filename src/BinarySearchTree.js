@@ -1,132 +1,199 @@
-import Queue from "./Queue";
+const Queue = require("./Queue");
 
 class BinarySearchTree {
-    constructor(key = null, value = null, parent = null) {
-        this.key = key;
-        this.value = value;
-        this.parent = parent;
+  constructor(key = null, value = null, parent = null) {
+    this.key = key;
+    this.value = value;
+    this.parent = parent;
+    this.left = null;
+    this.right = null;
+  }
+
+  insert(key, value) {
+    if (this.key == null) {
+      this.key = key;
+      this.value = value;
+    } else if (key < this.key) {
+      if (this.left == null) {
+        this.left = new BinarySearchTree(key, value, this);
+      } else {
+        this.left.insert(key, value);
+      }
+    } else {
+      if (this.right == null) {
+        this.right = new BinarySearchTree(key, value, this);
+      } else {
+        this.right.insert(key, value);
+      }
+    }
+  }
+
+  find(key) {
+    if (this.key === key) {
+      return this.value;
+    } else if (key < this.key && this.left) {
+      return this.left.find(key);
+    } else if (key > this.key && this.right) {
+      return this.right.find(key);
+    } else {
+      throw new Error("Key Error");
+    }
+  }
+
+  remove(key) {
+    if (this.key === key) {
+      if (this.left && this.right) {
+        const successor = this.right._findMin();
+        this.key = successor.key;
+        this.value = successor.value;
+        successor.remove(successor.key);
+      } else if (this.left) {
+        this._replaceWith(this.left);
+      } else if (this.right) {
+        this._replaceWith(this.right);
+      } else {
+        this._replaceWith(null);
+      }
+    } else if (key < this.key && this.left) {
+      this.left.remove(key);
+    } else if (key > this.key && this.right) {
+      this.right.remove(key);
+    } else {
+      throw new Error("Key Error");
+    }
+  }
+
+  _replaceWith(node) {
+    if (this.parent) {
+      if (this === this.parent.left) {
+        this.parent.left = node;
+      } else if (this === this.parent.right) {
+        this.parent.right = node;
+      }
+
+      if (node) {
+        node.parent = this.parent;
+      }
+    } else {
+      if (node) {
+        this.key = node.key;
+        this.value = node.value;
+        this.left = node.left;
+        this.right = node.right;
+      } else {
+        this.key = null;
+        this.value = null;
         this.left = null;
         this.right = null;
+      }
+    }
+  }
+
+  _findMin() {
+    if (!this.left) {
+      return this;
+    }
+    return this.left._findMin();
+  }
+
+  _findMax() {
+    if (!this.right) {
+      return this;
+    }
+    return this.right._findMax();
+  }
+
+  dfs(values = []) {
+    if (this.left) {
+      values = this.left.dfs(values);
+    }
+    values.push(this.value);
+
+    if (this.right) {
+      values = this.right.dfs(values);
+    }
+    return values;
+  }
+
+  dfsPreorder(values = []) {
+    values.push(this.value);
+
+    if (this.left) {
+      values = this.left.dfs(values);
     }
 
-    insert(key, value) {
-        if (this.key == null) {
-            this.key = key;
-            this.value = value;
-        } else if (key < this.key) {
-            if (this.left == null) {
-                this.left = new BinarySearchTree(key, value, this);
-            } else {
-                this.left.insert(key, value);
-            }
-        } else {
-            if (this.right == null) {
-                this.right = new BinarySearchTree(key, value, this);
-            } else {
-                this.right.insert(key, value);
-            }
-        }
+    if (this.right) {
+      values = this.right.dfs(values);
     }
+    return values;
+  }
 
-    find(key) {
-        if (this.key === key) {
-            return this.value;
-        } else if (key < this.key && this.left) {
-            return this.left.find(key);
-        } else if (key > this.key && this.right) {
-            return this.right.find(key);
-        } else {
-            throw new Error('Key Error');
-        }
+  bfsOrder(values) {
+    values = values || [];
+    const queue = [this];
+
+    while (queue.length) {
+      var node = queue.shift();
+      values.push(node.value);
+
+      if (node.left) {
+        queue.push(node.left);
+      }
+      if (node.right) {
+        queue.push(node.right);
+      }
     }
+    return values;
+  }
 
-    remove(key) {
-        if (this.key === key) {
-            if (this.left && this.right) {
-                const successor = this.right._findMin();
-                this.key = successor.key;
-                this.value = successor.value;
-                successor.remove(successor.key);
-            } else if (this.left) {
-                this._replaceWith(this.left);
-            } else if (this.right) {
-                this._replaceWith(this.right);
-            } else {
-                this._replaceWith(null);
-            }
-        } else if (key < this.key && this.left) {
-            this.left.remove(key);
-        } else if (key > this.key && this.right) {
-            this.right.remove(key);
-        } else {
-            throw new Error('Key Error');
-        }
+  bfs(tree, values = []) {
+    const queue = new Queue();
+    const node = tree.root;
+    queue.enqueue(node);
+    while (queue.length) {
+      const node = queue.dequeue();
+      values.push(node.value);
+
+      if (node.left) {
+        queue.enqueue(node.left);
+      }
+
+      if (node.right) {
+        queue.enqueue(node.right);
+      }
     }
+    return values;
+  }
 
-    _replaceWith(node) {
-        if (this.parent) {
-            if (this === this.parent.left) {
-                this.parent.left = node;
-            }
-            else if (this === this.parent.right) {
-                this.parent.right = node;
-            }
+  inOrder(result = []) {
+    if (this.left) this.left.inOrder(result);
 
-            if (node) {
-                node.parent = this.parent;
-            }
-        } else {
-            if (node) {
-                this.key = node.key;
-                this.value = node.value;
-                this.left = node.left;
-                this.right = node.right;
-            } else {
-                this.key = null;
-                this.value = null;
-                this.left = null;
-                this.right = null;
-            }
-        }
-    }
+    result.push(this.key);
 
-    _findMin() {
-        if (!this.left) {
-            return this;
-        }
-        return this.left._findMin();
-    }
+    if (this.right) this.right.inOrder(result);
 
-    dfs(values=[]) {
-        if(this.left) {
-            values = this.left.dfs(values);
-        }
-        values.push(this.value);
+    return result;
+  }
 
-        if (this.right) {
-            values = this.right.dfs(values);
-        }
-        return values;
-    }
+  postOrder(result = []) {
+    if (this.left) this.left.postOrder(result);
 
-    bfs(tree, values = []) {
-        const queue = new Queue();
-        const node = tree.root;
-        queue.enqueue(node);
-        while (queue.length) {
-            const node = queue.dequeue()
-            values.push(node.value);
+    if (this.right) this.right.postOrder(result);
 
-            if(node.left) {
-                queue.enqueue(node.left)
-            }
+    result.push(this.key);
 
-            if(node.right) {
-                queue.enqueue(node.right);
-            }
-        }
-        return values;
-    }
+    return result;
+  }
+
+  preOrder(result = []) {
+    result.push(this.key);
+
+    if (this.left) this.left.preOrder(result);
+
+    if (this.right) this.right.preOrder(result);
+
+    return result;
+  }
 }
 
-export default BinarySearchTree
+module.exports = BinarySearchTree;
